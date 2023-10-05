@@ -1,9 +1,26 @@
-import { useState } from "react";
+import { FormEvent, useState, ChangeEvent, InvalidEvent } from "react";
 import { Avatar } from "./Avatar";
 import { Comment } from "./Comment";
 import styles from "./Post.module.css";
 
-export function Post({ author, publishedAt, content }) {
+interface Author {
+  name: string;
+  role: string;
+  avatarUrl: string;
+}
+
+interface Content {
+  type: "paragraph" | "link";
+  content: string;
+}
+
+interface PostProps {
+  author: Author;
+  publishedAt: Date;
+  content: Content[];
+}
+
+export function Post({ author, publishedAt, content }: PostProps) {
   const [comments, setComments] = useState(["Post muito bacana, hein?!"]);
 
   const [newCommentText, setNewCommentText] = useState("");
@@ -15,30 +32,30 @@ export function Post({ author, publishedAt, content }) {
     minute: "2-digit",
   }).format(publishedAt);
 
-  function handleCreateNewComment(event) {
+  function handleCreateNewComment(event: FormEvent) {
     event.preventDefault();
 
     setComments([...comments, newCommentText]);
     setNewCommentText("");
   }
 
-  function newCommentChange(event) {
-    event?.target.setCustomValidity('')
+  function newCommentChange(event: ChangeEvent<HTMLTextAreaElement>) {
+    event?.target.setCustomValidity("");
     setNewCommentText(event.target.value);
   }
 
-  function deleteComment(commentToDelete) {
-    const commentsWithoutDeletedOne = comments.filter(comment => {
+  function deleteComment(commentToDelete: string) {
+    const commentsWithoutDeletedOne = comments.filter((comment) => {
       return comment !== commentToDelete;
-    })
-    setComments(commentsWithoutDeletedOne)
+    });
+    setComments(commentsWithoutDeletedOne);
   }
 
-  function handleNewCommentInvalid(event) {
-    event?.target.setCustomValidity('Este campo é obrigatório!')
+  function handleNewCommentInvalid(event: InvalidEvent<HTMLTextAreaElement>) {
+    event?.target.setCustomValidity("Este campo é obrigatório!");
   }
 
-  const isNewCommentEmpty = newCommentText.length === 0
+  const isNewCommentEmpty = newCommentText.length === 0;
 
   return (
     <article className={styles.post}>
@@ -80,7 +97,9 @@ export function Post({ author, publishedAt, content }) {
           onChange={newCommentChange}
         />
         <footer>
-          <button type="submit" disabled={isNewCommentEmpty}>Publicar</button>
+          <button type="submit" disabled={isNewCommentEmpty}>
+            Publicar
+          </button>
         </footer>
       </form>
       <div className={styles.commentList}>
